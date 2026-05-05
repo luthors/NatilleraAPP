@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: natillera_db
+    environment:
+      POSTGRES_USER: natillera_user
+      POSTGRES_PASSWORD: natillera_password
+      POSTGRES_DB: natillera_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U natillera_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: natillera_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@natillera.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+
+# Usage:
+# docker-compose up -d          # Start services in background
+# docker-compose down            # Stop services
+# docker-compose logs postgres   # View logs
+# 
+# PostgreSQL Connection:
+# Host: localhost
+# Port: 5432
+# User: natillera_user
+# Password: natillera_password
+# Database: natillera_db
+#
+# PgAdmin:
+# URL: http://localhost:5050
+# Email: admin@natillera.local
+# Password: admin
