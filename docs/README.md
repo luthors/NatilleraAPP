@@ -4,6 +4,12 @@ Bienvenido a la carpeta de documentación de Natillera App. Aquí encontrarás g
 
 ## 📖 Documentos Disponibles
 
+### 0. [design/](./design/README.md) - Diseño, Arquitectura y Patrones
+- Arquitectura de capas del backend (API → Service → Repository → Model)
+- Patrones de diseño: Repository, Unit of Work, Strategy, Observer
+- Convenciones de Clean Code para Python y JavaScript
+- Arquitectura feature-based del frontend (React + TanStack Query)
+
 ### 1. [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitectura Técnica
 - Diagramas de arquitectura
 - Diseño de base de datos (ER)
