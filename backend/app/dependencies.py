@@ -66,13 +66,9 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = decode_token(token)
+        # decode_token returns the subject string directly and validates type="access"
+        sub = decode_token(token, expected_type="access")
     except TokenInvalidoError:
-        raise credentials_exc
-
-    sub: str | None = payload.get("sub")
-    token_type: str | None = payload.get("type")
-    if sub is None or token_type != "access":
         raise credentials_exc
 
     usuario_repo = UsuarioRepository(db)
@@ -152,12 +148,14 @@ def get_natillera_service(
     natillera_repo: Annotated[NatilleraRepository, Depends(get_natillera_repo)],
     periodo_repo: Annotated[PeriodoRepository, Depends(get_periodo_repo)],
     socio_repo: Annotated[SocioRepository, Depends(get_socio_repo)],
+    usuario_repo: Annotated[UsuarioRepository, Depends(get_usuario_repo)],
     audit_repo: Annotated[AuditRepository, Depends(get_audit_repo)],
 ) -> NatilleraService:
     return NatilleraService(
         natillera_repo=natillera_repo,
         periodo_repo=periodo_repo,
         socio_repo=socio_repo,
+        usuario_repo=usuario_repo,
         audit_repo=audit_repo,
     )
 
