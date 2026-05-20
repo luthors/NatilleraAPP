@@ -4,7 +4,11 @@ Bienvenido a la carpeta de documentación de Natillera App. Aquí encontrarás g
 
 ## 📖 Documentos Disponibles
 
-### 0. [design/](./design/README.md) - Diseño, Arquitectura y Patrones
+### 0. [traceability/](./traceability/README.md) - Trazabilidad del Proyecto
+- Historial de commits con contexto y convención de mensajes
+- Matriz completa HU → Issue → Commit → Archivo
+
+### 1. [design/](./design/README.md) - Diseño, Arquitectura y Patrones
 - Arquitectura de capas del backend (API → Service → Repository → Model)
 - Patrones de diseño: Repository, Unit of Work, Strategy, Observer
 - Convenciones de Clean Code para Python y JavaScript
