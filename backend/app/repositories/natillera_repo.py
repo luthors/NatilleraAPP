@@ -45,6 +45,14 @@ class NatilleraRepository(BaseRepository[Natillera]):
         self.db.flush()
         return natillera
 
+    def get_all_by_estado(self, estado: EstadoNatillera) -> list[Natillera]:
+        """Return all natilleras in the given state. Used by the mora detection scheduler."""
+        return (
+            self.db.query(Natillera)
+            .filter(Natillera.estado == estado)
+            .all()
+        )
+
     def update(self, natillera: Natillera, **fields) -> Natillera:
         for key, value in fields.items():
             setattr(natillera, key, value)

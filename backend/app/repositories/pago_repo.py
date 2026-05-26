@@ -25,6 +25,10 @@ class PagoRepository(BaseRepository[Pago]):
             .first()
         )
 
+    def get_by_recibo_referencia(self, referencia: str) -> Optional[Pago]:
+        """Alias for get_by_referencia — used by the public QR verification endpoint."""
+        return self.get_by_referencia(referencia)
+
     def get_by_natillera(
         self,
         natillera_id: int,

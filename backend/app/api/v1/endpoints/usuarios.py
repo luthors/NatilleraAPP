@@ -45,9 +45,9 @@ def actualizar_perfil(
     summary="Subir foto de perfil",
 )
 async def subir_foto(
-    file: Annotated[UploadFile, File(...)],
     current_user: CurrentUser,
     usuario_repo: Annotated[UsuarioRepository, Depends(get_usuario_repo)],
+    file: UploadFile = File(...),
 ):
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
