@@ -1,0 +1,8 @@
+# migrations/versions/
+# This directory contains all Alembic migration scripts.
+# Generate a new migration:
+#   alembic revision --autogenerate -m "description"
+# Apply all pending migrations:
+#   alembic upgrade head
+# Downgrade one step:
+#   alembic downgrade -1
