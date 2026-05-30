@@ -70,31 +70,14 @@ chore(deps): upgrade FastAPI to 0.111.0 and Pydantic to 2.7.0
 
 ---
 
-### Fase: MVP Backend (pendiente)
+### Fase: MVP Backend — Phase 1 ✅ (May 2026)
 
 | Hash | Fecha | Tipo | Descripción | Issues | HU |
 |------|-------|------|-------------|--------|-----|
-| — | — | `chore` | Setup FastAPI base with layered architecture and domain exceptions | ISSUE-01 | — |
-| — | — | `chore(db)` | Add SQLAlchemy models, Alembic migrations and database indexes | ISSUE-02 | — |
-| — | — | `chore` | Implement Repository layer base classes and all concrete repos | ISSUE-03 | — |
-| — | — | `feat(auth)` | Implement user registration with bcrypt hashing and email validation | ISSUE-04 | HU-01-01 |
-| — | — | `feat(auth)` | Implement login, refresh token rotation and logout with invalidation | ISSUE-05 | HU-01-02, HU-01-03 |
-| — | — | `feat(auth)` | Implement password recovery with single-use time-limited token | ISSUE-06 | HU-01-04 |
-| — | — | `feat(users)` | Add GET and PUT /users/me endpoints with photo upload | ISSUE-07 | HU-01-05 |
-| — | — | `feat(natilleras)` | Implement natillera creation, period calendar generation and activation | ISSUE-09 | HU-02-01, HU-02-06 |
-| — | — | `feat(natilleras)` | Add natillera list, detail and edit endpoints with role-based views | ISSUE-10 | HU-02-02 a 02-05 |
-| — | — | `feat(natilleras)` | Implement natillera close and archive lifecycle transitions | ISSUE-11 | HU-02-07, HU-02-08 |
-| — | — | `feat(socios)` | Implement invitation system with 48h single-use token via email | ISSUE-12 | HU-03-01, HU-03-02 |
-| — | — | `feat(socios)` | Add socio list, suspend and delete endpoints with RN-09 enforcement | ISSUE-13 | HU-03-03 a 03-05 |
-| — | — | `feat(pagos)` | Implement admin payment registration with atomic fund balance update | ISSUE-15 | HU-04-01 |
-| — | — | `feat(pagos)` | Implement socio payment submission and admin confirm/reject flow | ISSUE-16 | HU-04-02, HU-04-03 |
-| — | — | `feat(pagos)` | Implement payment reversal with immutable audit trail (RN-06) | ISSUE-17 | HU-04-04 |
-| — | — | `feat(saldos)` | Add fund balance calculation service and nightly mora detection job | ISSUE-19 | HU-05-01, HU-05-02, HU-05-04 |
-| — | — | `feat(saldos)` | Add paginated transaction history with role-based access control | ISSUE-20 | HU-05-03 |
-| — | — | `feat(distribuciones)` | Implement final distribution preview and execution with RN-07 guard | ISSUE-22 | HU-06-02 |
-| — | — | `feat(notificaciones)` | Implement event-driven notification system with email handlers | ISSUE-23 | HU-07-01 a 07-03 |
-| — | — | `feat(reportes)` | Generate PDF payment receipt with unique reference and QR code | ISSUE-25 | HU-08-01 |
-| — | — | `feat(audit)` | Add immutable audit log with PostgreSQL trigger as second guard | ISSUE-27 | HU-09-01 |
+| `7d42636` | 2026-05-28 | `feat(backend)` | Core infra, models, repos, schemas, services (ISSUE-01 to 22) | ISSUE-01 a ISSUE-22 | HU-01-01 a HU-06-02 |
+| `5284b9e` | 2026-05-29 | `feat(backend)` | Notification service (email Observer handlers) + PDF comprobante service | ISSUE-23, ISSUE-25 | HU-07-01, HU-08-01 |
+| `24e7903` | 2026-05-30 | `feat(backend)` | DI wiring (dependencies.py) + all API v1 endpoints + finalize main.py | ISSUE-27 | HU-01 a HU-09 |
+| `9248a67` | 2026-05-31 | `chore(backend)` | Alembic migrations (0001_initial), .env.example, conftest.py | — | — |
 
 ---
 
@@ -138,11 +121,12 @@ chore(deps): upgrade FastAPI to 0.111.0 and Pydantic to 2.7.0
 
 | Métrica | Valor actual |
 |---------|-------------|
-| Total commits | 6 |
-| Commits docs | 6 |
-| Commits feat | 0 |
+| Total commits | 12 |
+| Commits docs | 7 |
+| Commits feat | 3 |
+| Commits chore | 2 |
 | Commits test | 0 |
-| Issues implementados | 0 / 47 |
-| HU completadas | 0 / 35+ |
+| Issues implementados | 27 / 47 (ISSUE-01 a ISSUE-27) |
+| HU completadas | ~25 / 35+ (backend completo) |
 
 > Actualizar esta tabla con cada commit.
