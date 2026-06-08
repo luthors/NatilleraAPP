@@ -82,3 +82,10 @@ class Periodo(Base):
 
     def __repr__(self) -> str:
         return f"<Periodo id={self.id} natillera_id={self.natillera_id} numero={self.numero} estado={self.estado}>"
+
+    @property
+    def nombre(self) -> str:
+        """Human-readable period label, e.g. 'Período 3 (01/06/2026 – 30/06/2026)'."""
+        inicio = self.fecha_inicio.strftime("%d/%m/%Y") if self.fecha_inicio else "?"
+        fin = self.fecha_fin.strftime("%d/%m/%Y") if self.fecha_fin else "?"
+        return f"Período {self.numero} ({inicio} – {fin})"

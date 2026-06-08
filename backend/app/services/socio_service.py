@@ -110,9 +110,11 @@ class SocioService:
 
     # ── Suspender ────────────────────────────────────────────────────────────
 
-    def suspender(self, socio_id: int, admin_id: int, razon: str) -> Socio:
+    def suspender(self, socio_id: int, admin_id: int, razon: str, natillera_id: Optional[int] = None) -> Socio:
         socio = self.socio_repo.get_by_id(socio_id)
         if socio is None:
+            raise SocioNoEncontradoError(socio_id)
+        if natillera_id is not None and socio.natillera_id != natillera_id:
             raise SocioNoEncontradoError(socio_id)
         natillera = self.natillera_repo.get_by_id(socio.natillera_id)
         if natillera.admin_id != admin_id:
@@ -133,9 +135,11 @@ class SocioService:
         emit("socio.suspendido", socio=socio, razon=razon)
         return socio
 
-    def reactivar(self, socio_id: int, admin_id: int) -> Socio:
+    def reactivar(self, socio_id: int, admin_id: int, natillera_id: Optional[int] = None) -> Socio:
         socio = self.socio_repo.get_by_id(socio_id)
         if socio is None:
+            raise SocioNoEncontradoError(socio_id)
+        if natillera_id is not None and socio.natillera_id != natillera_id:
             raise SocioNoEncontradoError(socio_id)
         natillera = self.natillera_repo.get_by_id(socio.natillera_id)
         if natillera.admin_id != admin_id:
@@ -144,13 +148,15 @@ class SocioService:
 
     # ── Eliminar ─────────────────────────────────────────────────────────────
 
-    def eliminar(self, socio_id: int, admin_id: int) -> None:
+    def eliminar(self, socio_id: int, admin_id: int, natillera_id: Optional[int] = None) -> None:
         """
         Remove a socio from a natillera.
         Blocked if the socio has any confirmed payments (RN-09).
         """
         socio = self.socio_repo.get_by_id(socio_id)
         if socio is None:
+            raise SocioNoEncontradoError(socio_id)
+        if natillera_id is not None and socio.natillera_id != natillera_id:
             raise SocioNoEncontradoError(socio_id)
         natillera = self.natillera_repo.get_by_id(socio.natillera_id)
         if natillera.admin_id != admin_id:

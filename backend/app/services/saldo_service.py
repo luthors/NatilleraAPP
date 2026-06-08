@@ -151,6 +151,7 @@ class SaldoService:
 
         periodos_vencidos = self.periodo_repo.get_periodos_vencidos_sin_pago(natillera_id)
         en_mora: list[int] = []
+        mora_counts: dict[int, int] = {}
 
         socios = self.socio_repo.get_by_natillera(natillera_id, solo_activos=True)
 
@@ -166,8 +167,15 @@ class SaldoService:
                     Pago.estado == EstadoPago.CONFIRMADO,
                 ).count() > 0
 
-                if not tiene_pago and socio.id not in en_mora:
-                    en_mora.append(socio.id)
-                    emit("socio.en_mora", socio=socio, natillera=natillera, periodo=periodo)
+                if not tiene_pago:
+                    if socio.id not in mora_counts:
+                        mora_counts[socio.id] = 0
+                        en_mora.append(socio.id)
+                    mora_counts[socio.id] += 1
+
+        for socio_id in en_mora:
+            socio = next((s for s in socios if s.id == socio_id), None)
+            if socio:
+                emit("socio.en_mora", socio=socio, natillera=natillera, periodos_mora=mora_counts[socio_id])
 
         return en_mora

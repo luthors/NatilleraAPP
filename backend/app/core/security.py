@@ -9,6 +9,7 @@ Security utilities: password hashing, JWT creation/decoding.
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import re
+import uuid
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -77,7 +78,7 @@ def create_refresh_token(subject: str) -> str:
         Signed JWT string valid for REFRESH_TOKEN_EXPIRE_DAYS days.
     """
     expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    payload = {"sub": subject, "exp": expire, "type": "refresh"}
+    payload = {"sub": subject, "exp": expire, "type": "refresh", "jti": uuid.uuid4().hex}
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 

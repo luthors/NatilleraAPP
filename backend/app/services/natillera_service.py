@@ -27,6 +27,7 @@ from app.models.natillera import Natillera, EstadoNatillera, Periodicidad
 from app.models.socio import Periodo, EstadoPeriodo, Socio, EstadoSocio
 from app.repositories.natillera_repo import NatilleraRepository, PeriodoRepository
 from app.repositories.socio_repo import SocioRepository
+from app.repositories.usuario_repo import UsuarioRepository
 from app.repositories.audit_repo import AuditRepository
 
 
@@ -37,12 +38,29 @@ class NatilleraService:
         natillera_repo: NatilleraRepository,
         periodo_repo: PeriodoRepository,
         socio_repo: SocioRepository,
+        usuario_repo: UsuarioRepository,
         audit_repo: AuditRepository,
     ) -> None:
         self.natillera_repo = natillera_repo
         self.periodo_repo = periodo_repo
         self.socio_repo = socio_repo
+        self.usuario_repo = usuario_repo
         self.audit_repo = audit_repo
+
+    # ── Listar períodos ───────────────────────────────────────────────────────
+
+    def listar_periodos(self, natillera_id: int, solicitante_id: int) -> list[Periodo]:
+        """Return all periods for a natillera. Requester must be admin or active socio."""
+        natillera = self.natillera_repo.get_by_id(natillera_id)
+        if natillera is None:
+            raise NatilleraNoEncontradaError(natillera_id)
+
+        socio = self.socio_repo.get_by_usuario_y_natillera(solicitante_id, natillera_id)
+        es_admin = natillera.admin_id == solicitante_id
+        if not es_admin and (socio is None or not socio.esta_activo()):
+            raise AccesoNoAutorizadoError()
+
+        return self.periodo_repo.get_by_natillera(natillera_id)
 
     # ── Crear ─────────────────────────────────────────────────────────────────
 
@@ -164,7 +182,7 @@ class NatilleraService:
             datos_anteriores={"estado": EstadoNatillera.CONFIGURACION},
             datos_nuevos={"estado": EstadoNatillera.ACTIVA},
         )
-        emit("natillera.activada", natillera=natillera)
+        emit("natillera.activada", natillera=natillera, admin=self.usuario_repo.get_by_id(admin_id))
         return natillera
 
     def _generar_calendario(self, natillera: Natillera) -> list[Periodo]:

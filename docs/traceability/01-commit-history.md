@@ -81,28 +81,27 @@ chore(deps): upgrade FastAPI to 0.111.0 and Pydantic to 2.7.0
 
 ---
 
-### Fase: MVP Frontend (pendiente)
+### Fase: MVP Frontend ✅ (May 2026) — `feature/frontend/phase-1`
 
 | Hash | Fecha | Tipo | Descripción | Issues | HU |
 |------|-------|------|-------------|--------|-----|
-| — | — | `chore(frontend)` | Setup feature-based folder structure, Axios client and TanStack Query | ISSUE-29 | — |
-| — | — | `feat(frontend)` | Implement login, register and password recovery UI | ISSUE-30 | HU-01-01 a 01-04 |
-| — | — | `feat(frontend)` | Add natillera dashboard cards and detail page with role-based tabs | ISSUE-31 | HU-02-02 a 02-04 |
-| — | — | `feat(frontend)` | Add natillera creation form, activation and close confirmation modal | ISSUE-32 | HU-02-01, 02-05 a 02-07 |
-| — | — | `feat(frontend)` | Add socio management: list, invite form and invitation acceptance page | ISSUE-33 | HU-03-01 a 03-05 |
-| — | — | `feat(frontend)` | Implement payment registration, confirm/reject flow and history table | ISSUE-34 | HU-04-01 a 04-04 |
-| — | — | `feat(frontend)` | Add final distribution preview and confirmation UI | ISSUE-35 | HU-06-02 |
+| `8a3a92a` | 2026-05-07 | `chore(frontend)` | Scaffold feature-based folder structure, Axios client and auth store | ISSUE-29 | — |
+| `5b34a7c` | 2026-05-19 | `feat(frontend)` | Implement login and register pages with Zustand auth store | ISSUE-30 | HU-01-01 a 01-04 |
+| `7cc0109` | 2026-05-23 | `feat(frontend)` | Add natillera dashboard, card component and natilleras API | ISSUE-31 | HU-02-02 a 02-04 |
+| `8bb0840` | 2026-05-27 | `feat(frontend)` | Add payment registration form and pagos API client | ISSUE-34 | HU-04-01 a 04-04 |
+| `0d7a588` | 2026-05-30 | `feat(frontend)` | Add distribution preview and execution confirmation UI | ISSUE-35 | HU-06-02 |
 
 ---
 
-### Fase: MVP Mobile (pendiente)
+### Fase: MVP Mobile ✅ (May 2026) — `feature/mobile/phase-1`
 
 | Hash | Fecha | Tipo | Descripción | Issues | HU |
 |------|-------|------|-------------|--------|-----|
-| — | — | `chore(mobile)` | Setup React Navigation, SecureStore token storage and Axios client | ISSUE-36 | — |
-| — | — | `feat(mobile)` | Add login and register screens with SecureStore token persistence | ISSUE-37 | HU-01-01, HU-01-02 |
-| — | — | `feat(mobile)` | Add dashboard and natillera detail screens with pull-to-refresh | ISSUE-38 | HU-02-02, HU-02-04 |
-| — | — | `feat(mobile)` | Add payment registration screen with image picker for receipt | ISSUE-39 | HU-04-02 |
+| `186eb7a` | 2026-05-08 | `chore(mobile)` | Add Axios API client with SecureStore token handling and root navigation scaffold | ISSUE-36 | — |
+| `06a6376` | 2026-05-15 | `feat(mobile)` | Add login and register screens with SecureStore token persistence | ISSUE-37 | HU-01-01, HU-01-02 |
+| `7d63fdc` | 2026-05-21 | `feat(mobile)` | Add natilleras home screen with list, refresh control and state badges | ISSUE-38 | HU-02-02, HU-02-04 |
+| `ba04d38` | 2026-05-26 | `feat(mobile)` | Add payment registration screen with period/method pickers | ISSUE-39 | HU-04-02 |
+| `9f041ec` | 2026-05-29 | `feat(mobile)` | Add notifications screen with unread indicator and mark-all-read action | ISSUE-40 | HU-07-01 |
 
 ---
 
@@ -121,12 +120,12 @@ chore(deps): upgrade FastAPI to 0.111.0 and Pydantic to 2.7.0
 
 | Métrica | Valor actual |
 |---------|-------------|
-| Total commits | 12 |
+| Total commits | 24 |
 | Commits docs | 7 |
-| Commits feat | 3 |
-| Commits chore | 2 |
+| Commits feat | 13 |
+| Commits chore | 4 |
 | Commits test | 0 |
-| Issues implementados | 27 / 47 (ISSUE-01 a ISSUE-27) |
-| HU completadas | ~25 / 35+ (backend completo) |
+| Issues implementados | 40 / 47 (ISSUE-01 a ISSUE-40) |
+| HU completadas | ~30 / 35+ (backend + frontend fase 1 + mobile fase 1) |
 
 > Actualizar esta tabla con cada commit.
