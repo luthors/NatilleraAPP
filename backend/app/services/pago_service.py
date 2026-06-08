@@ -122,30 +122,36 @@ class PagoService:
     def registrar_por_socio(
         self,
         natillera_id: int,
-        socio_id: int,
+        usuario_id: int,
         periodo_id: int,
         metodo: MetodoPago,
         referencia: Optional[str] = None,
         comprobante_url: Optional[str] = None,
-    ) -> Pago:
+    ) -> "Pago":
         """
         Socio submits a payment for admin confirmation.
+        Accepts usuario_id and resolves to the Socio record internally.
         State is PENDIENTE_CONFIRMACION.
         """
-        socio = self.socio_repo.get_by_id(socio_id)
-        if socio is None or socio.natillera_id != natillera_id:
-            raise SocioNoEncontradoError(socio_id)
-
         natillera = self.natillera_repo.get_by_id(natillera_id)
         if natillera is None:
             raise NatilleraNoEncontradaError(natillera_id)
 
-        if self.pago_repo.pago_activo_existe(socio_id, periodo_id):
+        # Resolve usuario → socio
+        socio = self.socio_repo.get_by_usuario_y_natillera(usuario_id, natillera_id)
+        if socio is None or not socio.esta_activo():
+            raise SocioNoEncontradoError(usuario_id)
+
+        periodo = self.periodo_repo.get_by_id(periodo_id)
+        if periodo is None or periodo.natillera_id != natillera_id:
+            raise PeriodoNoEncontradoError(periodo_id)
+
+        if self.pago_repo.pago_activo_existe(socio.id, periodo_id):
             raise PagoYaExisteError()
 
         pago = Pago(
             natillera_id=natillera_id,
-            socio_id=socio_id,
+            socio_id=socio.id,
             periodo_id=periodo_id,
             monto=natillera.monto_por_periodo,
             metodo=metodo,
@@ -160,12 +166,15 @@ class PagoService:
 
     # ── Admin confirms ────────────────────────────────────────────────────────
 
-    def confirmar(self, pago_id: int, admin_id: int) -> Pago:
+    def confirmar(self, pago_id: int, admin_id: int, natillera_id: Optional[int] = None) -> Pago:
         """
         Admin confirms a pending payment.
         Raises PagoYaConfirmadoError if already confirmed (RN-06).
         """
         pago = self._get_pago_for_admin(pago_id, admin_id)
+
+        if natillera_id is not None and pago.natillera_id != natillera_id:
+            raise AccesoNoAutorizadoError()
 
         if pago.estado == EstadoPago.CONFIRMADO:
             raise PagoYaConfirmadoError(pago_id)
@@ -192,8 +201,10 @@ class PagoService:
 
     # ── Admin rejects ─────────────────────────────────────────────────────────
 
-    def rechazar(self, pago_id: int, admin_id: int, razon: str) -> Pago:
+    def rechazar(self, pago_id: int, admin_id: int, razon: str, natillera_id: Optional[int] = None) -> Pago:
         pago = self._get_pago_for_admin(pago_id, admin_id)
+        if natillera_id is not None and pago.natillera_id != natillera_id:
+            raise AccesoNoAutorizadoError()
         datos_anteriores = {"estado": pago.estado}
 
         self.pago_repo.update(
@@ -223,6 +234,7 @@ class PagoService:
         pago_id: int,
         admin_id: int,
         justificacion: str,
+        natillera_id: Optional[int] = None,
     ) -> Pago:
         """
         Mark a confirmed payment as REVERTIDO.
@@ -232,6 +244,8 @@ class PagoService:
         password_confirmar verified externally before calling this method.
         """
         pago = self._get_pago_for_admin(pago_id, admin_id)
+        if natillera_id is not None and pago.natillera_id != natillera_id:
+            raise AccesoNoAutorizadoError()
 
         if pago.estado != EstadoPago.CONFIRMADO:
             raise PagoNoConfirmadoError()
@@ -270,6 +284,59 @@ class PagoService:
         if gestionado.tzinfo is None:
             gestionado = gestionado.replace(tzinfo=timezone.utc)
         return gestionado < limite
+
+    # ── Listing helpers ───────────────────────────────────────────────────────
+
+    def listar_por_socio(self, natillera_id: int, usuario_id: int) -> list[Pago]:
+        """Return all payments for the authenticated user within a natillera."""
+        natillera = self.natillera_repo.get_by_id(natillera_id)
+        if natillera is None:
+            raise NatilleraNoEncontradaError(natillera_id)
+
+        socio = self.socio_repo.get_by_usuario_y_natillera(usuario_id, natillera_id)
+        if socio is None:
+            raise SocioNoEncontradoError(usuario_id)
+
+        items, _ = self.pago_repo.get_by_natillera(natillera_id, socio_id=socio.id)
+        return items
+
+    def listar_por_natillera(self, natillera_id: int, admin_id: int) -> list[Pago]:
+        """Return all payments for a natillera (admin only)."""
+        natillera = self.natillera_repo.get_by_id(natillera_id)
+        if natillera is None:
+            raise NatilleraNoEncontradaError(natillera_id)
+        if natillera.admin_id != admin_id:
+            raise AccesoNoAutorizadoError()
+
+        items, _ = self.pago_repo.get_by_natillera(natillera_id)
+        return items
+
+    def obtener_con_contexto(self, pago_id: int, usuario_id: int):
+        """
+        Return (pago, socio, natillera, periodo) for the given pago_id.
+        The user must be the socio owner OR admin of the natillera.
+        """
+        pago = self.pago_repo.get_by_id(pago_id)
+        if pago is None:
+            raise PagoNoEncontradoError(pago_id)
+
+        natillera = self.natillera_repo.get_by_id(pago.natillera_id)
+        if natillera is None:
+            raise NatilleraNoEncontradaError(pago.natillera_id)
+
+        # Check access: admin or the socio who made the payment
+        is_admin = natillera.admin_id == usuario_id
+        socio = pago.socio
+        is_owner = socio is not None and socio.usuario_id == usuario_id
+        if not is_admin and not is_owner:
+            raise AccesoNoAutorizadoError()
+
+        periodo = self.periodo_repo.get_by_id(pago.periodo_id)
+        return pago, socio, natillera, periodo
+
+    def actualizar_recibo(self, pago: Pago, referencia: str, url: str) -> Pago:
+        """Persist the generated receipt reference and URL on the payment record."""
+        return self.pago_repo.update(pago, recibo_referencia=referencia, recibo_url=url)
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 

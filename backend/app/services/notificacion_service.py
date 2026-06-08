@@ -146,7 +146,11 @@ def handle_recuperacion(usuario, token: str, **_):
 
 
 @on("invitacion.creada")
-def handle_invitacion_creada(invitacion, natillera, invitado_email: str, **_):
+def handle_invitacion_creada(invitacion, natillera, invitado_email: str = None, **_):
+    # invitado_email may come directly as kwarg or from the invitacion object
+    email = invitado_email or (invitacion.email_invitado if invitacion else None)
+    if not email:
+        return
     link = f"{settings.FRONTEND_BASE_URL}/invitacion/{invitacion.token}"
     body = f"""
     <h2>Has sido invitado/a a una Natillera</h2>
@@ -160,43 +164,50 @@ def handle_invitacion_creada(invitacion, natillera, invitado_email: str, **_):
     </p>
     """
     _run_async(_send_email(
-        to=invitado_email,
+        to=email,
         subject=f"Invitación a la Natillera '{natillera.nombre}'",
         html_body=_base_template("Invitación a Natillera", body),
     ))
 
 
 @on("pago.confirmado")
-def handle_pago_confirmado(pago, socio, natillera, **_):
+def handle_pago_confirmado(pago, socio, natillera=None, **_):
+    nat = natillera or (pago.natillera if pago else None)
+    if nat is None or socio is None or socio.usuario is None:
+        return
     body = f"""
     <h2>Pago confirmado ✅</h2>
     <p>Hola {socio.usuario.nombre},</p>
     <p>Tu aporte de <strong>${pago.monto}</strong> para el período
-       <strong>{pago.periodo.nombre}</strong> de la natillera
-       <strong>{natillera.nombre}</strong> fue confirmado.</p>
+       <strong>{pago.periodo.nombre if pago.periodo else pago.periodo_id}</strong> de la natillera
+       <strong>{nat.nombre}</strong> fue confirmado.</p>
     <p>Gracias por mantenerte al día.</p>
     """
     _run_async(_send_email(
         to=socio.usuario.email,
-        subject=f"Pago confirmado — {natillera.nombre}",
+        subject=f"Pago confirmado — {nat.nombre}",
         html_body=_base_template("Pago confirmado", body),
     ))
 
 
 @on("pago.rechazado")
-def handle_pago_rechazado(pago, socio, natillera, motivo: Optional[str] = None, **_):
-    motivo_text = f"<p><strong>Motivo:</strong> {motivo}</p>" if motivo else ""
+def handle_pago_rechazado(pago, socio, natillera=None, motivo: Optional[str] = None, razon: Optional[str] = None, **_):
+    nat = natillera or (pago.natillera if pago else None)
+    if nat is None or socio is None or socio.usuario is None:
+        return
+    motivo_real = motivo or razon
+    motivo_text = f"<p><strong>Motivo:</strong> {motivo_real}</p>" if motivo_real else ""
     body = f"""
     <h2>Pago rechazado ❌</h2>
     <p>Hola {socio.usuario.nombre},</p>
-    <p>Tu pago registrado para el período <strong>{pago.periodo.nombre}</strong> de la
-       natillera <strong>{natillera.nombre}</strong> fue rechazado.</p>
+    <p>Tu pago registrado para el período <strong>{pago.periodo.nombre if pago.periodo else pago.periodo_id}</strong> de la
+       natillera <strong>{nat.nombre}</strong> fue rechazado.</p>
     {motivo_text}
     <p>Por favor comunícate con el administrador para más información.</p>
     """
     _run_async(_send_email(
         to=socio.usuario.email,
-        subject=f"Pago rechazado — {natillera.nombre}",
+        subject=f"Pago rechazado — {nat.nombre}",
         html_body=_base_template("Pago rechazado", body),
     ))
 
